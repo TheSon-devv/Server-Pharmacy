@@ -6,6 +6,43 @@ const verifyToken = require("./verifyToken");
 
 const router = express.Router();
 
+/**
+ * @swagger
+ *      components:
+ *          securitySchemes:
+ *            bearerAuth:
+ *              type: http
+ *              scheme: bearer
+ *              bearerFormat: JWT
+ *          schemas:
+ *            TypePharmacy:
+ *              type: object
+ *              required:
+ *              - nameTypePharmacy
+ *              properties:
+ *                nameTypePharmacy:
+ *                  type: string
+ */
+
+/**
+ * @swagger
+ *      tags:
+ *          name:TypePharmacy
+ */
+
+/**
+ * @swagger
+ * /typePharmacy:
+ *      get:
+ *          summary: Return list all typePharmacy
+ *          tags: [TypePharmacy]
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ */
+
 router.get("/", async (req, res) => {
   try {
     const getTypePharmacy = await TypePharmacy.find();
@@ -42,6 +79,29 @@ router.get("/:typePharmacyID", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /typePharmacy:
+ *      post:
+ *          summary: Post new TypePharmacy
+ *          tags: [TypePharmacy]
+ *          security:
+ *          - bearerAuth: []
+ *          requestBody :
+ *            required : true
+ *            content:
+ *              application/json:
+ *                schema:
+ *                  $ref: '#/components/schemas/TypePharmacy'
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ *              401:
+ *                  description : Unauthorized
+ */
+
 router.post("/", verifyToken, async (req, res) => {
   const dataTypePharmacy = new TypePharmacy({
     nameTypePharmacy: req.body.nameTypePharmacy,
@@ -55,6 +115,27 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /typePharmacy/{typePharmacyID}:
+ *      delete:
+ *          summary: Delete typePharmacy
+ *          tags: [TypePharmacy]
+ *          security:
+ *          - bearerAuth: []
+ *          parameters:
+ *          - in: path
+ *            name : typePharmacyID
+ *            required : true
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ *              401:
+ *                  description : Unauthorized
+ */
+
 router.delete("/:typePharmacyID", verifyToken, async (req, res) => {
   try {
     const getTypePharmacy = await TypePharmacy.deleteOne({
@@ -66,27 +147,5 @@ router.delete("/:typePharmacyID", verifyToken, async (req, res) => {
     res.json({ message: "Error", code: 400 });
   }
 });
-
-// router.put('/:customerID', async (req, res) => {
-//     try {
-//         const updateCustomer = await Customer.findByIdAndUpdate(
-//             req.params.customerID,
-//             {
-//                 $set: {
-//                     nameKH: req.body.nameKH,
-//                     nameLogin: req.body.nameLogin,
-//                     password: req.body.password,
-//                     phoneNumber: req.body.phoneNumber
-//                 }
-//             },
-//             {
-//                 new: true
-//             }
-//         );
-//         res.json({ message: 'Success', code: 200 })
-//     } catch (error) {
-//         res.json({ message: 'Error', code: 400 })
-//     }
-// })
 
 module.exports = router;

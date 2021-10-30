@@ -21,7 +21,6 @@ app.use(passport.session());
 
 const authRouter = require("./routers/auth");
 const customerRouter = require("./routers/customer");
-const staffRouter = require("./routers/staff");
 const pharmacyRouter = require("./routers/pharmacy");
 const checkoutRouter = require("./routers/checkout");
 const blogRouter = require("./routers/blog");
@@ -57,7 +56,6 @@ app.get("/", (req, res) => {
 //Router
 app.use("/auth", authRouter);
 app.use("/customer", customerRouter);
-app.use("/staff", staffRouter);
 app.use("/pharmacy", pharmacyRouter);
 app.use("/checkout", checkoutRouter);
 app.use("/blog", blogRouter);

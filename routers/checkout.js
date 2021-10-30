@@ -6,6 +6,65 @@ const Checkout = require("../model/Checkout");
 const verifyToken = require("./verifyToken");
 const Customer = require("../model/Customer");
 
+/**
+ * @swagger
+ *      components:
+ *          securitySchemes:
+ *            bearerAuth:
+ *              type: http
+ *              scheme: bearer
+ *              bearerFormat: JWT
+ *          schemas:
+ *            Checkout:
+ *              type: object
+ *              properties:
+ *                details:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      pharmacyId:
+ *                        type: string
+ *                        required: true
+ *                quantity:
+ *                  type: number
+ *                totalPrice:
+ *                  type: number
+ *                userId:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                checkoutPaypal:
+ *                  type: string
+ *                nameCustomer:
+ *                  type: string
+ *                name:
+ *                  type: string
+ *                phone:
+ *                  type: string
+ *                address:
+ *                  type: string
+ */
+
+/**
+ * @swagger
+ *      tags:
+ *          name:Checkout
+ */
+
+/**
+ * @swagger
+ * /checkout:
+ *      get:
+ *          summary: Return list all bill
+ *          tags: [Checkout]
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ */
+
 router.get("/", async (req, res) => {
   try {
     const getCheckout = await Checkout.find()
@@ -29,6 +88,23 @@ router.get("/", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /checkout/{userId}:
+ *      get:
+ *          summary: Return list all bill of user
+ *          tags: [Checkout]
+ *          parameters:
+ *          - in: path
+ *            name : userId
+ *            required : true
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ */
+
 router.get("/:userId", async (req, res) => {
   try {
     if (req.params.userId) {
@@ -49,6 +125,27 @@ router.get("/:userId", async (req, res) => {
     res.json({ message: "Error", code: 400 });
   }
 });
+
+/**
+ * @swagger
+ * /checkout:
+ *      post:
+ *          summary: Post new bill
+ *          tags: [Checkout]
+ *          requestBody :
+ *            required : true
+ *            content:
+ *              application/json:
+ *                schema:
+ *                  $ref: '#/components/schemas/Checkout'
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ *              401:
+ *                  description : Unauthorized
+ */
 
 router.post("/", async (req, res) => {
   const dataCheckout = new Checkout({
@@ -73,6 +170,27 @@ router.post("/", async (req, res) => {
     console.log(err);
   }
 });
+
+/**
+ * @swagger
+ * /checkout/{checkoutID}:
+ *      delete:
+ *          summary: Delete bill
+ *          tags: [Checkout]
+ *          security:
+ *          - bearerAuth: []
+ *          parameters:
+ *          - in: path
+ *            name : checkoutID
+ *            required : true
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ *              401:
+ *                  description : Unauthorized
+ */
 
 router.delete("/:checkoutID", verifyToken, async (req, res) => {
   try {
