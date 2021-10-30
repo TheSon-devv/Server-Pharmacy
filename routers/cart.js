@@ -10,7 +10,7 @@ router.get("/", async (req, res) => {
     res.json({ message: "Success", code: 200, getCart });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -22,7 +22,7 @@ router.get("/:userID", async (req, res) => {
     res.json({ message: "Success", code: 200, getCart });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
     }
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
     console.log(err);
   }
 });
@@ -56,7 +56,7 @@ router.delete("/:cartId", async (req, res) => {
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -76,7 +76,7 @@ router.put("/:cartId", async (req, res) => {
     );
     res.json({ message: "Success", code: 200 });
   } catch (error) {
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 

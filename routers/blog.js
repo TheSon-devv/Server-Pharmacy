@@ -35,15 +35,79 @@ const uploadBlog = multer({
 
 const router = express.Router();
 
+/**
+ * @swagger
+ *      components:
+ *          securitySchemes:
+ *            bearerAuth:
+ *              type: http
+ *              scheme: bearer
+ *              bearerFormat: JWT
+ *          schemas:
+ *            Blog:
+ *              type: object
+ *              required:
+ *              - nameBlog
+ *              - information
+ *              - blogImage
+ *              properties:
+ *                nameBlog:
+ *                  type: string
+ *                information:
+ *                  type: string
+ *                adminCreate:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                blogImage:
+ *                  type: file
+ */
+
+/**
+ * @swagger
+ *      tags:
+ *          name:Blog
+ */
+
+/**
+ * @swagger
+ * /blog:
+ *      get:
+ *          summary: Return list all blog
+ *          tags: [Blog]
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ */
+
 router.get("/", async (req, res) => {
   try {
     const getBlog = await Blog.find().sort({ dateCreate: -1 });
     res.json({ message: "Success", code: 200, getBlog });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
+
+/**
+ * @swagger
+ * /blog/{blogID}:
+ *      get:
+ *          summary: Get the pharmacy by blogID
+ *          tags: [Blog]
+ *          parameters:
+ *          - in: path
+ *            name : blogID
+ *            required : true
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ */
 
 router.get("/:blogID", async (req, res) => {
   try {
@@ -56,25 +120,46 @@ router.get("/:blogID", async (req, res) => {
     res.json({ message: "Success", code: 200, data });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
+
+/**
+ * @swagger
+ * /blog:
+ *      post:
+ *          summary: Post new blog
+ *          tags: [Blog]
+ *          security:
+ *          - bearerAuth: []
+ *          requestBody :
+ *            required : true
+ *            content:
+ *              multipart/form-data:
+ *                schema:
+ *                  $ref: '#/components/schemas/Blog'
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ *              401:
+ *                  description : Unauthorized
+ */
 
 router.post(
   "/",
   uploadBlog.single("blogImage"),
   verifyToken,
   async (req, res) => {
-    console.log(req.file);
     const dataBlog = new Blog({
       nameBlog: req.body.nameBlog,
       information: req.body.information,
       adminCreate: req.body.adminCreate,
-      blogImage: `http://localhost:4000/` + req.file.path,
+      blogImage: req.file.path,
     });
     try {
       const adminOnly = await Admin.findOne({ _id: req.body.adminCreate });
-      // console.log(adminOnly)
       if (adminOnly) {
         const saveBlog = await dataBlog.save();
         res.json({ message: "Success", code: 200, saveBlog });
@@ -83,20 +168,72 @@ router.post(
       }
     } catch (err) {
       res.status(400);
-      res.json({ message: "Error", code: 400 });
+      res.json({ message: err.message, code: 400 });
     }
   }
 );
 
+/**
+ * @swagger
+ * /blog/{blogID}:
+ *      delete:
+ *          summary: Delete blog
+ *          tags: [Blog]
+ *          security:
+ *          - bearerAuth: []
+ *          parameters:
+ *          - in: path
+ *            name : blogID
+ *            required : true
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ *              401:
+ *                  description : Unauthorized
+ */
+
 router.delete("/:blogID", verifyToken, async (req, res) => {
   try {
-    const getBlog = await Blog.deleteOne({ _id: req.params.blogID });
+    const getBlog = await Blog.findById(req.params.blogID);
+    if (!getBlog) {
+      return res.json({ message: "The blog doesn't exists !", code: 404 });
+    }
+    await Blog.deleteOne({ _id: req.params.blogID });
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
+
+/**
+ * @swagger
+ * /blog/{blogID}:
+ *      put:
+ *          summary: Change information blog
+ *          tags: [Blog]
+ *          security:
+ *          - bearerAuth: []
+ *          parameters:
+ *          - in: path
+ *            name : blogID
+ *            required : true
+ *          requestBody :
+ *            required : true
+ *            content:
+ *              multipart/form-data:
+ *                schema:
+ *                  $ref: '#/components/schemas/Blog'
+ *          responses:
+ *              200:
+ *                  description : Successed
+ *              400:
+ *                  description : Error
+ *              401:
+ *                  description : Unauthorized
+ */
 
 router.put(
   "/:blogID",
@@ -104,7 +241,6 @@ router.put(
   verifyToken,
   async (req, res) => {
     try {
-      console.log(req.file);
       const updatePharmacy = await Blog.updateOne(
         { _id: req.params.blogID },
         {
@@ -112,13 +248,13 @@ router.put(
             nameBlog: req.body.nameBlog,
             information: req.body.information,
             adminCreate: req.body.adminCreate,
-            blogImage: `http://localhost:4000/` + req.file.path,
+            blogImage: req.file.path,
           },
         }
       );
       res.json({ message: "Success", code: 200 });
     } catch (error) {
-      res.json({ message: "Error", code: 400 });
+      res.json({ message: err.message, code: 400 });
     }
   }
 );

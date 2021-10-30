@@ -21,6 +21,7 @@ const doctorSchema = mongoose.Schema({
   },
   doctorImage: {
     type: String,
+    required: true,
   },
 });
 

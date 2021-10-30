@@ -17,6 +17,8 @@ const Customer = require("../model/Customer");
  *          schemas:
  *            Checkout:
  *              type: object
+ *              required:
+ *              - pharmacyId
  *              properties:
  *                details:
  *                  type: array
@@ -25,7 +27,6 @@ const Customer = require("../model/Customer");
  *                    properties:
  *                      pharmacyId:
  *                        type: string
- *                        required: true
  *                quantity:
  *                  type: number
  *                totalPrice:
@@ -83,7 +84,7 @@ router.get("/", async (req, res) => {
     res.json({ message: "Success", code: 200, getCheckout, getTotalPriceDay });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
     console.log(err);
   }
 });
@@ -122,7 +123,7 @@ router.get("/:userId", async (req, res) => {
     // }
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -166,8 +167,7 @@ router.post("/", async (req, res) => {
     res.status(200).json({ message: "Success", code: 200, saveCheckout });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
-    console.log(err);
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -194,33 +194,16 @@ router.post("/", async (req, res) => {
 
 router.delete("/:checkoutID", verifyToken, async (req, res) => {
   try {
-    const getCheckout = await Checkout.deleteOne({
-      _id: req.params.checkoutID,
-    });
+    const getCheckout = await Checkout.findById(req.params.checkoutID);
+    if (!getCheckout) {
+      return res.json({ message: "The bill doesn't exists !", code: 404 });
+    }
+    await Checkout.deleteOne({ _id: req.params.checkoutID });
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
-
-// router.put('/:pharmacyID', async (req, res) => {
-//     try {
-//         const updatePharmacy = await Pharmacy.updateOne(
-//             { _id: req.params.pharmacyID },
-//             {
-//                 $set: {
-//                     maFood: req.body.maFood,
-//                     nameFood: req.body.tenFood,
-//                     priceFood: req.body.priceFood,
-//                     infomation: req.body.infomation,
-//                 }
-//             }
-//         );
-//         res.json({ message: 'Success', code: 200 })
-//     } catch (error) {
-//         res.json({ message: 'Error', code: 400 })
-//     }
-// })
 
 module.exports = router;

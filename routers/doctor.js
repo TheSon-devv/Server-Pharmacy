@@ -44,6 +44,8 @@ const uploadStorage = multer({
  *          schemas:
  *            Doctor:
  *              type: object
+ *              required:
+ *              - doctorImage
  *              properties:
  *                nameDoctor:
  *                  type: string
@@ -80,14 +82,13 @@ const uploadStorage = multer({
  *                  description : Error
  */
 
-
 router.get("/", async (req, res) => {
   try {
     const getDoctor = await Doctor.find();
     res.json({ message: "Success", code: 200, getDoctor });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -116,7 +117,7 @@ router.get("/:doctorId", async (req, res) => {
     res.json({ message: "Success", code: 200, data });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -148,7 +149,6 @@ router.post(
   uploadStorage.single("doctorImage"),
   verifyToken,
   async (req, res) => {
-    console.log(req.file);
     const dataDoctor = new Doctor({
       nameDoctor: req.body.nameDoctor,
       workplace: req.body.workplace,
@@ -156,7 +156,7 @@ router.post(
       experience: req.body.experience,
       experienceYear: req.body.experienceYear,
       details: req.body.details,
-      doctorImage: `http://localhost:4000/` + req.file.path,
+      doctorImage: req.file.path,
     });
 
     try {
@@ -164,8 +164,7 @@ router.post(
       res.json({ message: "Success", code: 200, saveDoctor });
     } catch (err) {
       res.status(400);
-      res.json({ message: "Error", code: 400 });
-      console.log(err);
+      res.json({ message: err.message, code: 400 });
     }
   }
 );
@@ -193,11 +192,15 @@ router.post(
 
 router.delete("/:doctorId", verifyToken, async (req, res) => {
   try {
-    const getDoctor = await Doctor.deleteOne({ _id: req.params.doctorId });
+    const getDoctor = await Doctor.findById(req.params.doctorId);
+    if (!getDoctor) {
+      return res.json({ message: "The doctor doesn't exists !", code: 404 });
+    }
+    await Doctor.deleteOne({ _id: req.params.doctorId });
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -233,7 +236,6 @@ router.put(
   uploadStorage.single("doctorImage"),
   verifyToken,
   async (req, res) => {
-    console.log(req.file);
     try {
       const updateDoctor = await Doctor.updateOne(
         { _id: req.params.doctorId },
@@ -245,13 +247,13 @@ router.put(
             experience: req.body.experience,
             experienceYear: req.body.experienceYear,
             details: req.body.details,
-            doctorImage: `http://localhost:4000/` + req.file.path,
+            doctorImage: req.file.path,
           },
         }
       );
       res.json({ message: "Success", code: 200 });
     } catch (error) {
-      res.json({ message: "Error", code: 400 });
+      res.json({ message: err.message, code: 400 });
     }
   }
 );

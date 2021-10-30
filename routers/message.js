@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
     res.json({ message: "Success", code: 200, getMessage });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 router.get("/:messageId", async (req, res) => {
@@ -20,7 +20,7 @@ router.get("/:messageId", async (req, res) => {
     res.json({ message: "Success", code: 200, data });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
     res.json({ message: "Success", code: 200, saveMessage });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
     console.log(err);
   }
 });
@@ -50,7 +50,7 @@ router.delete("/:messageId", async (req, res) => {
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -71,7 +71,7 @@ router.put("/:messageId", async (req, res) => {
     );
     res.json({ message: "Success", code: 200 });
   } catch (error) {
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 

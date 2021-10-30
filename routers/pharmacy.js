@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Pharmacy = require("../model/Pharmacy");
+const TypePharmacy = require("../model/TypePharmacy");
 const verifyToken = require("./verifyToken");
 const multer = require("multer");
 
@@ -48,6 +49,7 @@ const uploadStorage = multer({
  *              - namePharmacy
  *              - typePharmacy
  *              - pricePharmacy
+ *              - pharmacyImage
  *              properties:
  *                namePharmacy:
  *                  type: string
@@ -92,7 +94,7 @@ router.get("/", async (req, res) => {
     res.json({ message: "Success", code: 200, getPharmacy });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -117,7 +119,7 @@ router.get("/topSale", async (req, res) => {
     res.json({ message: "Success", code: 200, getPharmacySale });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -148,7 +150,7 @@ router.get("/:pharmacyID", async (req, res) => {
     res.json({ message: "Success", code: 200, data });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -162,7 +164,7 @@ router.get("/", async (req, res) => {
     res.json({ message: "Success", code: 200, data });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -194,7 +196,6 @@ router.post(
   uploadStorage.single("pharmacyImage"),
   verifyToken,
   async (req, res) => {
-    console.log(req.file);
     const dataPharmacy = new Pharmacy({
       namePharmacy: req.body.namePharmacy,
       typePharmacy: req.body.typePharmacy,
@@ -206,22 +207,27 @@ router.post(
         Number(req.body.pricePharmacy) -
         Number(req.body.pricePharmacy * req.body.promotion) / 100
       ).toFixed(2),
-      pharmacyImage: `http://localhost:4000/` + req.file.path,
+      pharmacyImage: req.file.path,
     });
-    console.log(dataPharmacy, "data");
 
     try {
       const maPharmacyOnly = await Pharmacy.findOne({ _id: req.body._id });
+      const getTypePharmacy = await TypePharmacy.findById(
+        req.body.typePharmacy
+      );
       if (!maPharmacyOnly) {
-        const savePharmacy = await dataPharmacy.save();
-        res.json({ message: "Success", code: 200, savePharmacy });
+        if (!getTypePharmacy) {
+          return res.json({ message: "Not found type pharmacy !" });
+        } else {
+          const savePharmacy = await dataPharmacy.save();
+          return res.json({ message: "Success", code: 200, savePharmacy });
+        }
       } else {
         return res.json({ message: "Conflict !", code: 401 });
       }
     } catch (err) {
       res.status(400);
-      res.json({ message: "Error", code: 400 });
-      console.log(err);
+      res.json({ message: err.message, code: 400 });
     }
   }
 );
@@ -252,13 +258,11 @@ router.delete("/:pharmacyID", verifyToken, async (req, res) => {
     const pharmacyID = await Pharmacy.findOne({ _id: req.params.pharmacyID });
     if (!pharmacyID)
       return res.json({ message: "Không tìm thấy sản phẩm !", code: 200 });
-    const getPharmacy = await Pharmacy.deleteOne({
-      _id: req.params.pharmacyID,
-    });
+    await Pharmacy.deleteOne({ _id: req.params.pharmacyID });
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -294,7 +298,6 @@ router.put(
   uploadStorage.single("pharmacyImage"),
   verifyToken,
   async (req, res) => {
-    console.log(req.file);
     try {
       const updatePharmacy = await Pharmacy.updateOne(
         { _id: req.params.pharmacyID },
@@ -309,13 +312,13 @@ router.put(
               Number(req.body.pricePharmacy) -
               Number(req.body.pricePharmacy * req.body.promotion) / 100
             ).toFixed(2),
-            pharmacyImage: `http://localhost:4000/` + req.file.path,
+            pharmacyImage: req.file.path,
           },
         }
       );
       res.json({ message: "Success", code: 200 });
     } catch (error) {
-      res.json({ message: "Error", code: 400 });
+      res.json({ message: err.message, code: 400 });
     }
   }
 );

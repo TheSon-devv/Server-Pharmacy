@@ -62,7 +62,7 @@ router.get("/", async (req, res) => {
     });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -75,7 +75,7 @@ router.get("/:typePharmacyID", async (req, res) => {
     res.json({ message: "Success", code: 200, getTypePharmacy });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -111,7 +111,7 @@ router.post("/", verifyToken, async (req, res) => {
     res.json({ message: "Success", code: 200, saveTypePharmacy });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -144,7 +144,7 @@ router.delete("/:typePharmacyID", verifyToken, async (req, res) => {
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 

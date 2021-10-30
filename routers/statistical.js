@@ -23,8 +23,7 @@ router.get("/", async (req, res) => {
     });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
-    console.log(err);
+    res.json({ message: err.message, code: 400 });
   }
 });
 

@@ -92,13 +92,14 @@ router.post("/login", async (req, res) => {
  *          schemas:
  *            Customer:
  *              type: object
+ *              required:
+ *              - nameKH
+ *              - password
  *              properties:
  *                nameKH:
  *                  type: string
- *                  required: true
  *                password:
  *                  type: string
- *                  required: true
  *                email:
  *                  type: string
  *                phoneNumber:
@@ -132,7 +133,7 @@ router.get("/", verifyToken, async (req, res) => {
     res.json({ message: "Success", code: 200, getCustomer });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -161,7 +162,7 @@ router.get("/:customerID", verifyToken, async (req, res) => {
     res.json({ message: "Success", code: 200, getCustomer });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -200,7 +201,7 @@ router.post("/", verifyToken, async (req, res) => {
     res.json({ message: "Success", code: 200, saveCustomer });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -227,13 +228,15 @@ router.post("/", verifyToken, async (req, res) => {
 
 router.delete("/:customerID", verifyToken, async (req, res) => {
   try {
-    const getCustomer = await Customer.deleteOne({
-      _id: req.params.customerID,
-    });
+    const getCustomer = await Customer.findById(req.params.customerID);
+    if (!getCustomer) {
+      return res.json({ message: "The customer doesn't exists !", code: 404 });
+    }
+    await Customer.deleteOne({ _id: req.params.customerID });
     res.json({ message: "Success", code: 200 });
   } catch (err) {
     res.status(400);
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
@@ -280,7 +283,7 @@ router.put("/:customerID", async (req, res) => {
     );
     res.json({ message: "Success", code: 200 });
   } catch (error) {
-    res.json({ message: "Error", code: 400 });
+    res.json({ message: err.message, code: 400 });
   }
 });
 
