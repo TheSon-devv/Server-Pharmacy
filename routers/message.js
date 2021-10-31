@@ -5,13 +5,16 @@ const Message = require("../model/message");
 
 router.get("/", async (req, res) => {
   try {
-    const getMessage = await Message.find().populate("doctor", "nameDoctor");
+    const getMessage = await Message.find()
+      .populate("doctor", "nameDoctor")
+      .sort({ dateCreate: -1 });
     res.json({ message: "Success", code: 200, getMessage });
   } catch (err) {
     res.status(400);
     res.json({ message: err.message, code: 400 });
   }
 });
+
 router.get("/:messageId", async (req, res) => {
   try {
     const getMessage = await Message.findById(req.params.messageId);
