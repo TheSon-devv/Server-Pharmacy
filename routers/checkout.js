@@ -162,6 +162,13 @@ router.post("/", async (req, res) => {
     address: req.body.address,
   });
 
+  const updateCustomer = await Customer.findByIdAndUpdate(req.body.userId, {
+    $set: {
+      phoneNumber: req.body.phone,
+      address: req.body.address,
+    },
+  });
+
   try {
     const saveCheckout = await dataCheckout.save();
     res.status(200).json({ message: "Success", code: 200, saveCheckout });

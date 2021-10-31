@@ -6,15 +6,16 @@ const customerSchema = mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
   },
   password: {
     type: String,
-    required: true,
   },
   phoneNumber: {
     type: String,
-    maxLength: 11,
+    maxLength: 15,
+  },
+  address: {
+    type: String,
   },
 });
 

@@ -104,6 +104,8 @@ router.post("/login", async (req, res) => {
  *                  type: string
  *                phoneNumber:
  *                  type: string
+ *                address:
+ *                  type: string
  */
 
 /**
@@ -195,6 +197,7 @@ router.post("/", verifyToken, async (req, res) => {
     email: req.body.email,
     password: req.body.password,
     phoneNumber: req.body.phoneNumber,
+    address: req.body.address,
   });
   try {
     const saveCustomer = await dataCustomer.save();
@@ -275,6 +278,7 @@ router.put("/:customerID", async (req, res) => {
           nameLogin: req.body.nameLogin,
           password: req.body.password,
           phoneNumber: req.body.phoneNumber,
+          address: req.body.address,
         },
       },
       {
