@@ -21,6 +21,6 @@ const messageSchema = mongoose.Schema({
   status: {
     type: Number,
   },
-});
+},{ timestamps: true });
 
 module.exports = mongoose.model("message", messageSchema);

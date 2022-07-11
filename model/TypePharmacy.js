@@ -5,6 +5,6 @@ const TypePharmacySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-});
+},{ timestamps: true });
 
 module.exports = mongoose.model("typePharmacy", TypePharmacySchema);
